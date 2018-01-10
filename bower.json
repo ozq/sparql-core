@@ -1,0 +1,16 @@
+{
+  "name": "sparql-core",
+  "authors": [
+    "svolkov <svolkov25@gmail.com>"
+  ],
+  "description": "JS libraries for working with sparql",
+  "main": "",
+  "keywords": [
+    "sparql",
+    "wsparql",
+    "light-editor",
+    "sparql-formatter"
+  ],
+  "license": "MIT",
+  "homepage": ""
+}
