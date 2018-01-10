@@ -1,5 +1,6 @@
 {
   "name": "sparql-core",
+  "version": "1.0.0",
   "authors": [
     "svolkov <svolkov25@gmail.com>"
   ],
