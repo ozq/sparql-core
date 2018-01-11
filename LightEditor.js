@@ -27,7 +27,7 @@ class LightEditor {
             this.queryInputElement = this.loadConfigurationItem('queryInputElement');
             this.buildQueryElement = this.loadConfigurationItem('buildQueryElement');
             this.sparqlClient = this.loadConfigurationItem('sparqlClient');
-            this.wsparql = this.loadConfigurationItem('wsparql');
+            this.wsparql = this.loadConfigurationItem('wsparql', false);
             this.initialProperties = this.loadConfigurationItem('initialProperties', {});
             this.initialQuery = this.loadConfigurationItem('initialQuery', '');
             this.minusedVariables = this.loadConfigurationItem('minusedVariables', []);
@@ -265,11 +265,11 @@ class LightEditor {
             extensions: ['glyph'],
             icon: false,
             glyph: {
-                preset: "bootstrap3",
+                preset: "awesome4",
                 map: {
-                    expanderClosed: "glyphicon glyphicon-menu-right",
-                    expanderLazy: "glyphicon glyphicon-menu-right",
-                    expanderOpen: "glyphicon glyphicon-menu-down"
+                    expanderClosed: "fa fa-angle-double-right",
+                    expanderLazy: "fa fa-angle-double-right",
+                    expanderOpen: "fa fa-angle-double-down"
                 }
             },
             dblclick: function(event, nodeData) {
@@ -656,7 +656,12 @@ class LightEditor {
             }
         }
 
-        let query = self.sparqlFormatter.compactUri(self.wsparql.toWSparql(buildQuery(properties)));
+
+        let query = this.wsparql === false ?
+            this.sparqlFormatter.beautify(buildQuery(properties)) :
+            self.wsparql.toWSparql(buildQuery(properties));
+
+        query = self.sparqlFormatter.compactUri(query);
 
         console.log('Generated query:');
         console.log(query);

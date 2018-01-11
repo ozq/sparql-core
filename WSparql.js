@@ -36,10 +36,10 @@ class WSparql {
                 toWsparql: function (query) {
                     let queryLines = _.compact(query.split('\n'));
                     let optionalPartRegexp = new RegExp('\s*optional', 'i');
-                    let relationFunctionRegexpTemplate = '\\s*relation\\((' + self.sparqlFormatter.uriRegexpCode + ')\\s+' + '(.*' + '[#:]%predicate_postfix%' + ')' + '\\s' + self.sparqlFormatter.uriRegexpCode + '\\)';
-                    let relationFunctionRegexpCode = '\\s*relation\\((' + self.sparqlFormatter.uriRegexpCode + ')\\s+' + self.sparqlFormatter.uriRegexpCode + '\\s' + self.sparqlFormatter.uriRegexpCode + '\\)';
-                    let objectRelationRegexpCode = '\\s*requiredRelation\\((' + self.sparqlFormatter.uriRegexpCode + ')\\s+' + '(.*' + '[#:]object' + ')' + '\\s' + '(' + self.sparqlFormatter.uriRegexpCode + ')' + '\\)';
-                    let wrgTripleRegexp = new RegExp(self.sparqlFormatter.wrgTripleRegexpCode, 'i');
+                    let relationFunctionRegexpTemplate = '\\s*relation\\((' + this.sparqlFormatter.uriRegexpCode + ')\\s+' + '(.*' + '[#:]%predicate_postfix%' + ')' + '\\s' + this.sparqlFormatter.uriRegexpCode + '\\)';
+                    let relationFunctionRegexpCode = '\\s*relation\\((' + this.sparqlFormatter.uriRegexpCode + ')\\s+' + this.sparqlFormatter.uriRegexpCode + '\\s' + this.sparqlFormatter.uriRegexpCode + '\\)';
+                    let objectRelationRegexpCode = '\\s*requiredRelation\\((' + this.sparqlFormatter.uriRegexpCode + ')\\s+' + '(.*' + '[#:]object' + ')' + '\\s' + '(' + this.sparqlFormatter.uriRegexpCode + ')' + '\\)';
+                    let wrgTripleRegexp = new RegExp(this.sparqlFormatter.wrgTripleRegexpCode, 'i');
                     let emptyLineRegexp = new RegExp('^[\\s}]+$');
                     let inOptionalCounter = false;
                     let inOptionalPart = false;
@@ -363,6 +363,7 @@ class WSparql {
      * @returns {string|*}
      */
     simplifyRelations(query) {
+        let self = this;
         let queryLines = query.split('\n');
         let objectData = [];
         let optionalDepth = 0;
