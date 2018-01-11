@@ -290,6 +290,9 @@ class LightEditor {
                             });
                         }
                     });
+                    if (self.wsparql.isWearingUri(parentNodeData.node.data.class)) {
+                        self.pushWearingNodes(parentNodeData);
+                    }
                 });
             },
             select: function(event, nodeData) {
@@ -333,6 +336,48 @@ class LightEditor {
             self.buildInitialPropertiesTree();
             this.isInitialPropertiesInitialized = true;
         }
+    }
+
+    pushWearingNodes(parentNode) {
+        let wearingNodes = [
+            {
+                title: 'Название (crm2:object)',
+                shortTitle: 'Название',
+                isInverse: false,
+                class: 'http://sp7.ru/ontology/' + this.wsparql.getWearingClassByUri(parentNode.node.data.class),
+                property: 'http://sp7.ru/ontology/object',
+                key: _.uniqueId()
+            },
+            {
+                title: 'Период с (crm2:date_from)',
+                shortTitle: 'Дата начала',
+                isInverse: false,
+                class: 'http://sp7.ru/ontology/Date',
+                property: 'http://sp7.ru/ontology/date_from',
+                key: _.uniqueId()
+            },
+            {
+                title: 'Период по (crm2:date_to)',
+                shortTitle: 'Дата окончания',
+                isInverse: false,
+                class: 'http://sp7.ru/ontology/Date',
+                property: 'http://sp7.ru/ontology/date_to',
+                key: _.uniqueId()
+            }
+        ];
+
+        let firstChild = parentNode.node.getFirstChild();
+        wearingNodes.forEach(function (item) {
+            let wearingFoundNode = parentNode.node.findFirst(function (node) {
+                return node.data.property === item.property && !node.data.isInverse
+            });
+            if (wearingFoundNode === null) {
+                wearingFoundNode = parentNode.node.addChildren(item, firstChild);
+            }
+            if (wearingFoundNode.data.property === 'http://sp7.ru/ontology/object') {
+                firstChild = wearingFoundNode;
+            }
+        });
     }
 
     /**
@@ -540,7 +585,7 @@ class LightEditor {
                         'options': {
                             'isInverse': chainNode.data.isInverse,
                             'variableName': chainNode.data.variableName,
-                            'isHidden': chainNode.data.isHidden,
+                            'isHidden': chainNode.data.isHidden
                         }
                     });
                 }
@@ -580,7 +625,7 @@ class LightEditor {
                 subjectVarName + ' ' + property + ' ' + objectVarName;
 
             let newQueryPart = _.isEmpty(childProperties) ?
-                'OPTIONAL { \n' + triple + '\n}\n' + optionalPlaceholder :
+                '\n' + triple + '\n' + optionalPlaceholder :
                 'OPTIONAL { \n' + triple + '\n' + optionalPlaceholder + '\n}\n';
             query = query === '' ? newQueryPart : query.replace('%optionalPlaceholder%', newQueryPart);
 

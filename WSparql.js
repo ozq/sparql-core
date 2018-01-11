@@ -6,14 +6,11 @@ class WSparql {
     constructor() {
         this.sparqlFormatter = new SparqlFormatter();
         this.minusedVariablesRegexpCode = '-\\?\\w+';
+        this.wearingUriRegexpCode = '^.*Wearing>{0,1}';
 
-        /**
-         * Order of methods is important!
-         * Some methods generates not clear sparql, but wsparql.
-         * E.g., 'wearing' generates query with 'relation' calls, so, 'wearing' must be defined before 'relation'.
-         */
-        this.methods = {
-            wearing: {
+        this.methods = [
+            {
+                name: 'wearing',
                 toSparql: function (triple, postfix) {
                     let tripleParts = this.sparqlFormatter.getTripleParts(triple);
                     let relationPart = '';
@@ -36,7 +33,7 @@ class WSparql {
                 toWsparql: function (query) {
                     let queryLines = _.compact(query.split('\n'));
                     let optionalPartRegexp = new RegExp('\s*optional', 'i');
-                    let relationFunctionRegexpTemplate = '\\s*relation\\((' + this.sparqlFormatter.uriRegexpCode + ')\\s+' + '(.*' + '[#:]%predicate_postfix%' + ')' + '\\s' + this.sparqlFormatter.uriRegexpCode + '\\)';
+                    let relationFunctionRegexpTemplate = '^\\s*relation\\((' + this.sparqlFormatter.uriRegexpCode + ')\\s+' + '(.*' + '[#:]%predicate_postfix%' + ')' + '\\s' + this.sparqlFormatter.uriRegexpCode + '\\)$';
                     let relationFunctionRegexpCode = '\\s*relation\\((' + this.sparqlFormatter.uriRegexpCode + ')\\s+' + this.sparqlFormatter.uriRegexpCode + '\\s' + this.sparqlFormatter.uriRegexpCode + '\\)';
                     let objectRelationRegexpCode = '\\s*requiredRelation\\((' + this.sparqlFormatter.uriRegexpCode + ')\\s+' + '(.*' + '[#:]object' + ')' + '\\s' + '(' + this.sparqlFormatter.uriRegexpCode + ')' + '\\)';
                     let wrgTripleRegexp = new RegExp(this.sparqlFormatter.wrgTripleRegexpCode, 'i');
@@ -201,7 +198,8 @@ class WSparql {
                     };
                 }
             },
-            requiredRelation: {
+            {
+                name: 'requiredRelation',
                 toSparql: function (triple, labelDepth = 1) {
                     labelDepth = _.toInteger(labelDepth);
                     let tripleParts = this.sparqlFormatter.getTripleParts(triple);
@@ -234,7 +232,8 @@ class WSparql {
                     };
                 }
             },
-            relation: {
+            {
+                name: 'relation',
                 toSparql: function (triple, labelDepth = 1) {
                     let requiredRelationResult = this.methods.requiredRelation.toSparql.call(this, triple, labelDepth);
                     let query = 'OPTIONAL {\n' + requiredRelationResult.query + '\n}';
@@ -334,8 +333,10 @@ class WSparql {
                         }
                     });
 
+                    let requiredRelationMethod = _.find(self.methods, function (method) { return method.name === 'requiredRelation'; });
+
                     query = self.simplifyRelations(
-                        self.methods.requiredRelation.toWsparql(
+                        requiredRelationMethod.toWsparql(
                             self.sparqlFormatter.replaceEmptyOperators(lines.join('\n'))
                         ).query
                     );
@@ -346,7 +347,8 @@ class WSparql {
                     }
                 }
             },
-            optional: {
+            {
+                name: 'optional',
                 toSparql: function (triple) {
                     let query = 'OPTIONAL {\n' + triple + '\n}';
                     return {
@@ -355,7 +357,7 @@ class WSparql {
                     }
                 }
             }
-        };
+        ];
     }
 
     /**
@@ -371,6 +373,7 @@ class WSparql {
         let optionalRegexp = new RegExp('optional\\s*{', 'i');
         let somePartRegexp = new RegExp('\\w+\\s*{', 'i');
         let requiredRelationRegexp = new RegExp('requiredRelation\\((.+)\\)', 'i');
+
         for (let i = 0; i < queryLines.length; i++) {
             let queryLine = queryLines[i];
             if (optionalRegexp.test(queryLine)) {
@@ -414,6 +417,13 @@ class WSparql {
             });
         }
 
+        let excessOptionalRegexp = new RegExp('OPTIONAL\\s*{\\s*OPTIONAL\\s*{\\s*(' + self.sparqlFormatter.tripleLineRegexpCode + ')\\s*}\\s*}', 'gmi');
+        while (excessOptionalRegexp.test(query)) {
+            query = query.replace(excessOptionalRegexp, function (match, line) {
+                return 'OPTIONAL {\n' + line + '\n}';
+            });
+        }
+
         return query;
     }
 
@@ -432,6 +442,26 @@ class WSparql {
     isMinusedVariable(variable) {
         return variable.charAt(0) === '-';
     };
+
+    /**
+     * @param uri
+     * @returns {boolean}
+     */
+    isWearingUri(uri) {
+        return (new RegExp(this.wearingUriRegexpCode)).test(uri);
+    }
+
+    /**
+     * @param uri
+     * @returns {*}
+     */
+    getWearingClassByUri(uri) {
+        if (this.isWearingUri(uri) === false) {
+            return false;
+        }
+
+        return this.sparqlFormatter.getClassByUri(uri, 'Wearing');
+    }
 
     /**
      * @param triple
@@ -473,12 +503,12 @@ class WSparql {
     toSparql(query, addSingletonProperties = false) {
         let self = this;
         let whereVariablesRegexp = new RegExp(name + '(SELECT)\\s+(.*)\\s+(WHERE)', 'gi');
-        _.forEach(self.methods, function(method, name) {
+        _.forEach(self.methods, function(method) {
             let methodWhereVariablesGroup = [];
-            let regexp = new RegExp(name + '\\((.*)\\)\\.*', 'gi');
+            let regexp = new RegExp(method.name + '\\((.*)\\)\\.*', 'gi');
             if (regexp.test(query)) {
                 query = query.replace(regexp, function (match, methodArguments) {
-                    let result = self.methods[name].toSparql.apply(self, methodArguments.split(','));
+                    let result = method.toSparql.apply(self, methodArguments.split(','));
                     methodWhereVariablesGroup.push(result.whereVariables);
                     return addSingletonProperties === true ?
                         self.sparqlFormatter.addSingletonProperties(result.query, false, '_ws') :
@@ -508,12 +538,15 @@ class WSparql {
      */
     toWSparql(query) {
         let self = this;
+        let methods = self.methods.slice().reverse();
 
-        _.forEach(self.methods, function(method, name) {
-            if (self.methods[name].toWsparql) {
-                let methodResult = self.methods[name].toWsparql.apply(self, [query]);
+        _.forEach(methods, function(method) {
+            console.log(method.name);
+            if (method.toWsparql) {
+                let methodResult = method.toWsparql.apply(self, [query]);
                 query = methodResult.query;
             }
+            console.log(query);
         });
 
         let selectVariablesMatch = this.sparqlFormatter.getSelectVariables(query);

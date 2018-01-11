@@ -91,6 +91,33 @@ class SparqlFormatter {
     }
 
     /**
+     * @param uri
+     * @returns {boolean}
+     */
+    isUriLikeUrl(uri) {
+        return (new RegExp('^<{0,1}http\\:\\/\\/', 'i')).test(uri);
+    }
+
+    /**
+     * @param uri
+     * @param postfix
+     * @returns {string}
+     */
+    getClassByUri(uri, postfix = '') {
+        let className = '';
+        if (this.isUriLikeUrl(uri)) {
+            className = _.last(uri.split('\/'));
+        } else {
+            className = _.last(uri.split('\:'));
+        }
+        if (postfix) {
+            className = className.replace(postfix, '');
+        }
+
+        return className;
+    }
+
+    /**
      * @param query
      * @returns {Array}
      */
