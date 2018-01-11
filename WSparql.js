@@ -235,7 +235,9 @@ class WSparql {
             {
                 name: 'relation',
                 toSparql: function (triple, labelDepth = 1) {
-                    let requiredRelationResult = this.methods.requiredRelation.toSparql.call(this, triple, labelDepth);
+                    let requiredRelationMethod = _.find(self.methods, function (method) { return method.name === 'requiredRelation'; });
+
+                    let requiredRelationResult = requiredRelationMethod.toSparql.call(this, triple, labelDepth);
                     let query = 'OPTIONAL {\n' + requiredRelationResult.query + '\n}';
                     return {
                         query: query,
