@@ -3,8 +3,12 @@
  * Class for transforming wsparq to sparql and back
  */
 class WSparql {
-    constructor() {
-        this.sparqlFormatter = new SparqlFormatter();
+    /**
+     * @param configuration
+     */
+    constructor(configuration) {
+        this.loadConfiguration(configuration);
+
         this.minusedVariablesRegexpCode = '-\\?\\w+';
         this.wearingUriRegexpCode = '^.*Wearing>{0,1}';
 
@@ -360,6 +364,41 @@ class WSparql {
                 }
             }
         ];
+    }
+
+    /**
+     * @param configuration
+     */
+    loadConfiguration(configuration) {
+        if (typeof configuration === 'object') {
+            this.configuration = configuration;
+            this.sparqlFormatter = this.loadConfigurationItem('sparqlFormatter', undefined, 'object');
+        } else {
+            console.error('Configuration must be instance of object!');
+        }
+    }
+
+    /**
+     * @param option
+     * @param defaultValue
+     * @param type
+     * @returns {*}
+     */
+    loadConfigurationItem(option, defaultValue, type) {
+        if (this.configuration.hasOwnProperty(option) && this.configuration[option]) {
+            if (typeof type !== 'undefined') {
+                if (typeof this.configuration[option] !== type) {
+                    console.error('Option ' + option + ' must be type of ' + type + '!');
+                }
+            }
+            return this.configuration[option];
+        } else {
+            if (typeof defaultValue !== 'undefined') {
+                return defaultValue;
+            } else {
+                console.error('Option ' + option + ' must be passed and be defined!');
+            }
+        }
     }
 
     /**

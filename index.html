@@ -17,8 +17,8 @@
         <script type="text/javascript" src="bower_components/jquery-ui/jquery-ui.min.js"></script>
         <script type="text/javascript" src="bower_components/jquery.fancytree/dist/jquery.fancytree-all.min.js"></script>
 
-        <script type="text/javascript" src="WSparql.js"></script>
         <script type="text/javascript" src="SparqlFormatter.js"></script>
+        <script type="text/javascript" src="WSparql.js"></script>
         <script type="text/javascript" src="SparqlClient.js"></script>
         <script type="text/javascript" src="LightEditor.js"></script>
     </head>
@@ -55,21 +55,25 @@
     </form>
     </div>
     <script type="text/javascript">
+        let sparqlFormatter = new SparqlFormatter({
+            additionalPrefixes: {
+                'crm2': 'http://sp7.ru/ontology/',
+                'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+                'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
+                'owl': 'http://www.w3.org/2002/07/owl#'
+            }
+        });
+
         new LightEditor({
             classesSelectElement: '#leClassesSelect',
             propertyTreeElement: '#lePropertyTree',
             selectedPropertyTreeElement: '#leSelectedPropertyTree',
             queryInputElement: '#leQueryInput',
             buildQueryElement: '#leBuildQuery',
-            sparqlFormatter: new SparqlFormatter({
-                additionalPrefixes: {
-                    'crm2': 'http://sp7.ru/ontology/',
-                    'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-                    'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
-                    'owl': 'http://www.w3.org/2002/07/owl#'
-                }
+            sparqlFormatter: sparqlFormatter,
+            wsparql: new WSparql({
+                'sparqlFormatter': sparqlFormatter
             }),
-            wsparql: new WSparql(),
             sparqlClient: new SparqlClient({
                 graphIri: 'http://sp7.ru/',
                 requestUrl: 'http://draft.adposium.ru:8890/sparql',
