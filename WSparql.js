@@ -35,6 +35,11 @@ class WSparql {
                     }
                 },
                 toWsparql: function (query) {
+                    //TODO: Приходится использовать, т.к. objectRelationRegexpCode и т.п. заточены на полное uri,
+                    //TODO: '[#:]object', а после object еще может быть закрывающая скобка uri - '>', из-за этого
+                    //TODO: не матчится. Проверить и поправить регекспы ниже на не сокращенных URI.
+                    query = this.sparqlFormatter.compactUri(query);
+
                     let queryLines = _.compact(query.split('\n'));
                     let optionalPartRegexp = new RegExp('\s*optional', 'i');
                     let relationFunctionRegexpTemplate = '^\\s*relation\\((' + this.sparqlFormatter.uriRegexpCode + ')\\s+' + '(.*' + '[#:]%predicate_postfix%' + ')' + '\\s' + this.sparqlFormatter.uriRegexpCode + '\\)$';
@@ -582,12 +587,10 @@ class WSparql {
         let methods = self.methods.slice().reverse();
 
         _.forEach(methods, function(method) {
-            console.log(method.name);
             if (method.toWsparql) {
                 let methodResult = method.toWsparql.apply(self, [query]);
                 query = methodResult.query;
             }
-            console.log(query);
         });
 
         let selectVariablesMatch = this.sparqlFormatter.getSelectVariables(query);
