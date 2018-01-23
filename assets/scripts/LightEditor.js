@@ -1,3 +1,14 @@
+import lodash from 'lodash';
+
+const $ = require('jquery');
+
+const fancytree = require('jquery.fancytree');
+require('jquery.fancytree/dist/modules/jquery.fancytree.dnd');
+
+require('../styles/light-editor-styles.scss');
+import 'jquery.fancytree/dist/skin-themeroller/ui.fancytree.css'
+require('font-awesome/scss/font-awesome.scss');
+
 /**
  * LightEditor
  */
@@ -262,16 +273,7 @@ class LightEditor {
         propertyTreeElement.fancytree({
             checkbox: true,
             source: propertyTreeData,
-            extensions: ['glyph'],
             icon: false,
-            glyph: {
-                preset: "awesome4",
-                map: {
-                    expanderClosed: "fa fa-angle-double-right",
-                    expanderLazy: "fa fa-angle-double-right",
-                    expanderOpen: "fa fa-angle-double-down"
-                }
-            },
             dblclick: function(event, nodeData) {
                 self.loadProperties(nodeData.node.data.class, function (data) {
                     let parentNodeData = nodeData;
@@ -714,3 +716,5 @@ class LightEditor {
         return query;
     }
 }
+
+window.LightEditor = LightEditor;

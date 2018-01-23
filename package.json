@@ -1,0 +1,44 @@
+{
+  "name": "sparql-core",
+  "version": "1.0.0",
+  "description": "JS Libraries For Sparql & WSparql",
+  "main": "LightEditor.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack -p",
+    "watch": "webpack --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ozq/sparql-core.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ozq/sparql-core/issues"
+  },
+  "homepage": "https://github.com/ozq/sparql-core#readme",
+  "dependencies": {
+    "jquery.fancytree": "2.25.0",
+    "font-awesome": "4.7.0",
+    "jquery-ui": "1.12.1",
+    "lodash": "4.17.4",
+    "bootstrap": "v4.0.0-alpha.6"
+  },
+  "devDependencies": {
+    "babel-loader": "^7.1.2",
+    "babel-minify-webpack-plugin": "^0.2.0",
+    "babel-preset-env": "^1.6.1",
+    "css-loader": "0.28.9",
+    "expose-loader": "^0.7.4",
+    "file-loader": "1.1.6",
+    "node-sass": "4.7.2",
+    "sass-loader": "6.0.6",
+    "style-loader": "0.19.1",
+    "url-loader": "0.6.2",
+    "webpack": "3.10.0"
+  }
+}

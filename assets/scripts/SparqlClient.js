@@ -49,7 +49,7 @@ class SparqlClient {
      * @param errorCallback
      */
     execute(query, successCallback, errorCallback) {
-        var data = {
+        let data = {
             'query': query,
             'debug': this.debugMode,
             'format': this.responseFormat,
@@ -74,3 +74,5 @@ class SparqlClient {
         });
     }
 }
+
+window.SparqlClient = SparqlClient;

@@ -1,3 +1,5 @@
+import lodash from 'lodash';
+
 /**
  * SparqlFormatter
  *
@@ -585,3 +587,5 @@ class SparqlFormatter {
         return 'SELECT ?label ?property WHERE { \n' + query + '\n}';
     }
 }
+
+window.SparqlFormatter = SparqlFormatter;
