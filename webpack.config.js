@@ -3,10 +3,10 @@ const MinifyPlugin = require('babel-minify-webpack-plugin');
 
 module.exports = {
     entry: {
-        SparqlFormatter: './assets/scripts/SparqlFormatter.js',
-        WSparql: './assets/scripts/WSparql',
-        LightEditor: './assets/scripts/LightEditor.js',
-        SparqlClient: './assets/scripts/SparqlClient.js',
+        SparqlFormatter: './src/scripts/SparqlFormatter.js',
+        WSparql: './src/scripts/WSparql',
+        LightEditor: './src/scripts/LightEditor.js',
+        SparqlClient: './src/scripts/SparqlClient.js',
     },
     output: {
         path: path.resolve(__dirname, './dist'),
