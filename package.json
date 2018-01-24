@@ -1,6 +1,6 @@
 {
   "name": "sparql-core",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "JS Libraries For Sparql & WSparql",
   "main": "LightEditor.js",
   "directories": {
