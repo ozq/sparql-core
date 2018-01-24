@@ -7,11 +7,13 @@ module.exports = {
         WSparql: './src/scripts/WSparql',
         LightEditor: './src/scripts/LightEditor.js',
         SparqlClient: './src/scripts/SparqlClient.js',
+        App: './src/scripts/App.js',
     },
     output: {
         path: path.resolve(__dirname, './dist'),
         publicPath: '/dist/js/',
-        filename: 'js/[name].js'
+        filename: 'js/[name].js',
+        libraryTarget: 'umd'
     },
     module: {
         rules: [

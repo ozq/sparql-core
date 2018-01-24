@@ -12,7 +12,7 @@ require('font-awesome/scss/font-awesome.scss');
 /**
  * LightEditor
  */
-class LightEditor {
+export default class LightEditor {
     /**
      * @param configuration
      */
@@ -716,5 +716,3 @@ class LightEditor {
         return query;
     }
 }
-
-window.LightEditor = LightEditor;

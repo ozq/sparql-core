@@ -5,72 +5,39 @@
         <title>SPARQL CORE EXAMPLES</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-        <script type="text/javascript" src="dist/js/SparqlFormatter.js"></script>
-        <script type="text/javascript" src="dist/js/WSparql.js"></script>
-        <script type="text/javascript" src="dist/js/SparqlClient.js"></script>
-        <script type="text/javascript" src="dist/js/LightEditor.js"></script>
     </head>
 <body>
     <div class="container">
         <form id="leForm">
-        <div class="row">
-            <div class="col-xs-12 col-md-4">
-                <div class="form-group">
-                    <label>Class:</label>
-                    <select name="class" class="form-control" id="leClassesSelect"></select>
+            <div class="row">
+                <div class="col-xs-12 col-md-4">
+                    <div class="form-group">
+                        <label>Class:</label>
+                        <select name="class" class="form-control" id="leClassesSelect"></select>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-12 col-md-6">
-                <div class="form-group">
-                    <label>Properties:</label>
-                    <div id="lePropertyTree" style="max-height: 400px; overflow-y: scroll;"></div>
+            <div class="row">
+                <div class="col-xs-12 col-md-6">
+                    <div class="form-group">
+                        <label>Properties:</label>
+                        <div id="lePropertyTree" style="max-height: 400px; overflow-y: scroll;"></div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <div class="form-group">
+                        <label>Selected properties:</label>
+                        <div id="leSelectedPropertyTree" style="max-height: 400px; overflow-y: scroll;"></div>
+                    </div>
                 </div>
             </div>
-            <div class="col-xs-12 col-md-6">
-                <div class="form-group">
-                    <label>Selected properties:</label>
-                    <div id="leSelectedPropertyTree" style="max-height: 400px; overflow-y: scroll;"></div>
-                </div>
+            <button class="btn btn-success" type="button" id="leBuildQuery" style="margin-bottom: 16px;">Build</button>
+            <div>
+                <label>Result:</label>
+                <textarea class="form-control" id="leQueryInput" rows="5"></textarea>
             </div>
-        </div>
-        <button class="btn btn-success" type="button" id="leBuildQuery" style="margin-bottom: 16px;">Build</button>
-        <div>
-            <label>Result:</label>
-            <textarea class="form-control" id="leQueryInput" rows="5"></textarea>
-        </div>
-    </form>
+        </form>
     </div>
-    <script type="text/javascript">
-        let sparqlFormatter = new SparqlFormatter({
-            additionalPrefixes: {
-                'crm2': 'http://sp7.ru/ontology/',
-                'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-                'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
-                'owl': 'http://www.w3.org/2002/07/owl#'
-            }
-        });
-
-        new LightEditor({
-            classesSelectElement: '#leClassesSelect',
-            propertyTreeElement: '#lePropertyTree',
-            selectedPropertyTreeElement: '#leSelectedPropertyTree',
-            queryInputElement: '#leQueryInput',
-            buildQueryElement: '#leBuildQuery',
-            sparqlFormatter: sparqlFormatter,
-            wsparql: new WSparql({
-                'sparqlFormatter': sparqlFormatter
-            }),
-            sparqlClient: new SparqlClient({
-                graphIri: 'http://sp7.ru/',
-                requestUrl: 'http://draft.adposium.ru:8890/sparql',
-                requestType: 'POST',
-                requestDataType: 'jsonp',
-                responseFormat: 'json',
-                debugMode: 'on'
-            })
-        });
-    </script>
+    <script type="text/javascript" src="dist/js/App.js"></script>
 </body>
 </html>

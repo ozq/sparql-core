@@ -4,7 +4,7 @@ import lodash from 'lodash';
  * WSparql
  * Class for transforming wsparq to sparql and back
  */
-class WSparql {
+export default class WSparql {
     /**
      * @param configuration
      */
@@ -613,5 +613,3 @@ class WSparql {
         return query;
     }
 }
-
-window.WSparql = WSparql;

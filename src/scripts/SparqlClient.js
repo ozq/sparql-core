@@ -1,7 +1,7 @@
 /**
  * SparqlClient
  */
-class SparqlClient {
+export default class SparqlClient {
     /**
      * @param configuration
      */
@@ -74,5 +74,3 @@ class SparqlClient {
         });
     }
 }
-
-window.SparqlClient = SparqlClient;
