@@ -599,6 +599,7 @@ export default class WSparql {
         if (selectVariablesMatch) {
             let queryWithoutSelectPart = query.replace(selectVariablesMatch[0], '');
             let bodyVariables = queryWithoutSelectPart.match(new RegExp('[\\w]*[?<$:][\\w:\\/\\.\\-#>]+', 'gmi'));
+            bodyVariables = bodyVariables.map(variable => { return _.trim(variable, '.'); });
             let definedVariables = _.intersection(selectVariablesMatch.items, bodyVariables);
             query = query.replace(selectVariablesMatch[1], ' ' + _.trim(definedVariables.join(' '), ' ') + ' ');
         }
