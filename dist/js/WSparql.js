@@ -602,7 +602,7 @@ var WSparql = function () {
                     var relationContent = queryLine.match(requiredRelationRegexp)[1];
                     var relationTriple = relationContent.split(', ')[0];
                     var relationSubjectData = objectData[self.sparqlFormatter.getTripleParts(relationTriple)[0]];
-                    if (optionalDepth !== relationSubjectData.optionalDepth) {
+                    if (_.isUndefined(relationSubjectData) === false && optionalDepth !== relationSubjectData.optionalDepth) {
                         queryLines[i] = '';
                         var newRelation = 'relation(' + relationContent + ')';
                         queryLines.splice(relationSubjectData.lineNumber + 1, 0, newRelation);

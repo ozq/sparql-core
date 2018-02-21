@@ -448,7 +448,7 @@ export default class WSparql {
                 let relationContent = queryLine.match(requiredRelationRegexp)[1];
                 let relationTriple = relationContent.split(', ')[0];
                 let relationSubjectData = objectData[self.sparqlFormatter.getTripleParts(relationTriple)[0]];
-                if (optionalDepth !== relationSubjectData.optionalDepth) {
+                if (_.isUndefined(relationSubjectData) === false && optionalDepth !== relationSubjectData.optionalDepth) {
                     queryLines[i] = '';
                     let newRelation = 'relation(' + relationContent + ')';
                     queryLines.splice(relationSubjectData.lineNumber + 1, 0, newRelation);
