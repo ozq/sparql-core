@@ -330,7 +330,8 @@ export default class WSparql {
 
                     let selectVariables = [];
                     _.forEach(_.uniq(tripleData), function(tripleItem) {
-                        if (_.isEmpty(tripleItem.labels) === false) {
+                        // Генерируем wsparql только для связей через одно колено
+                        if (tripleItem.labels.length === 1) {
                             let labelDepth = _.size(tripleItem.labels);
                             lines[tripleItem.line] = '';
                             _.forEach(_.uniq(tripleItem.labels), function(labelItem) {
