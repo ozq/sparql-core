@@ -15,6 +15,7 @@ export default class SparqlFormatter {
         this.tripleLineRegexpCode = '(?:(?:' + this.uriRegexpCode + ')[\\s\\.]*){3}';
         this.tripleElementsRegexpCode = '[?<$\\w:][\\w:\\/\\.\\-#>]*[?!\\w>]';
         this.singletonPropertyUri = '\<http://www.w3.org/1999/02/22-rdf-syntax-ns#singletonPropertyOf>';
+        this.singletonPropertyRegexpCode = '(' + this.singletonPropertyUri + '|rdf:singletonPropertyOf)';
         this.allPrefixesRegexpCode = '[\\w]+(?=:(?!\\/\\/))';
         this.excessLineRegexpCode = '(\\n\\s*){2}[^\\S\\t]';
         this.allIndentsRegexpCode = '^[\\t ]+(?![\\n])(?=[\\S])';
@@ -241,54 +242,46 @@ export default class SparqlFormatter {
      */
     removeSingletonProperties(query, saveReplacedVariables = false) {
         let self = this;
-        let singletonProperty = 'singletonPropertyOf';
-        let triplePairsRegexp = new RegExp(this.triplePairsRegexpCode, 'gi');
-        let triplePairLinesRegexp = new RegExp(this.tripleLineRegexpCode, 'gi');
-        let triplePairElementsRegexp = new RegExp(this.tripleElementsRegexpCode, 'gi');
-
+        let spTripleRegexpCode = this.tripleElementsRegexpCode + '\\s+' + this.singletonPropertyRegexpCode + '\\s+' + this.tripleElementsRegexpCode;
         let deletedUri = [];
         let replacedVariables = [];
+        let targetTripleList = [];
 
-        let result = query.replace(triplePairsRegexp, function(triplePair) {
-            // Don't replace triple pair, if there is no singleton property
-            if (triplePair.indexOf(singletonProperty) === -1) {
-                return triplePair;
+        // Идем по запросу и находим все SP-триплы
+        let result = query.replace(new RegExp(spTripleRegexpCode, 'gmi'), function (foundSpTriple) {
+            // Получаем части трипла
+            let spTripleParts = self.getTripleParts(foundSpTriple);
+            // Находим зависимый трипл (субъект SP-трипла === предикату искомого трипла)
+            let spTargetTriple = query.match(new RegExp(self.tripleElementsRegexpCode + '\\s+' + spTripleParts[0].replace('?', '\\?') + '\\s+' + self.tripleElementsRegexpCode + '\.{0,1}'))[0];
+            // Дальнейшая обработка имеет смысл, если имеем дело с валидной связкой (SP-трипл и зависимый трипл)
+            if (spTargetTriple !== null) {
+                // Получаем части зависимого трипла
+                let spTargetTripleParts = self.getTripleParts(spTargetTriple);
+                // Сохраняем зависимый трипл, потом их зачистим
+                targetTripleList.push(spTargetTriple);
+                // Сохраняем предикат, если это не переменная
+                if (self.isVariable(spTripleParts[1]) === false) {
+                    deletedUri.push(spTripleParts[1]);
+                }
+                // Сохраняем удаленные переменные, если это необходимо
+                if (saveReplacedVariables === true) {
+                    replacedVariables.push({
+                        variable: spTargetTripleParts[1],
+                        predicate: spTripleParts[2]
+                    });
+                }
+                // Возвращаем трипл без SP
+                return spTargetTripleParts[0] + ' ' + spTripleParts[2] + ' ' + spTargetTripleParts[2];
             }
-
-            // Get triple pair lines
-            let triplePairLines = triplePair.match(triplePairLinesRegexp);
-
-            // Group triple pair lines
-            let groupedTriplePair = triplePairLines[0].indexOf(singletonProperty) !== -1 ?
-                triplePairLines[1] + triplePairLines[0] :
-                triplePairLines[0] + triplePairLines[1];
-
-            // Get triple pair elements
-            let triplePairElements = groupedTriplePair.match(triplePairElementsRegexp).map(function(element) {
-                return element.replace(/\.$/, '');
-            });
-
-            // Save predicate, if it's not a variable
-            if (self.isVariable(triplePairElements[1]) === false) {
-                deletedUri.push(triplePairElements[1]);
-            }
-
-            // Save replaced variables, if it necessary
-            if (saveReplacedVariables) {
-                replacedVariables.push({
-                    variable: triplePairElements[1],
-                    predicate: triplePairElements[5]
-                });
-            }
-
-            // If predicate on 1-st line is equal to subject on 2-nd line
-            if (triplePairElements[1] === triplePairElements[3]) {
-                // Build triple without singleton property
-                return triplePairElements[0] + ' ' + triplePairElements[5] + ' ' + triplePairElements[2] + '.\r\n';
-            } else {
-                return triplePair;
-            }
+            // Если что-то пошло не так, возвращаем найденное значение без изменений
+            return foundSpTriple;
         });
+
+        // Зачищаем все найденные зависимые триплы
+        targetTripleList.forEach(triple => {
+            result = result.replace(triple, '');
+        });
+
 
         return {
             result: this.beautify(result),
@@ -306,7 +299,7 @@ export default class SparqlFormatter {
      */
     addSingletonProperties(query, rebuild = false, spPostfix = '', spPrefix = 'sp_') {
         if (rebuild === true) {
-            query = sparqlFormatter.removeSingletonProperties(query).result;
+            query = this.removeSingletonProperties(query).result;
         }
 
         let self = this;
